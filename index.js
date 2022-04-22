@@ -11,7 +11,7 @@ const data = require('./data.json');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
 // Parties du messages
-const CHANNEL = "967110593595179068";
+const CHANNEL = "682859559680868356";
 const MESSAGE_HEAD = "Hey @everyone !"
 const MESSAGE_BODY_1 = "fête ses"
 const MESSAGE_BODY_2 = "ans aujourd'hui ! Souhaitez-lui un excellent anniversaire ! Bon anniversaire"

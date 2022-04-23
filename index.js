@@ -34,7 +34,7 @@ client.once('ready', () => {
 
 // Envoi des messages d'anniversaire
 client.on("ready", () => {
-	cron.schedule("* * * * * *", () => {
+	cron.schedule("0 0 1 * * *", () => {
 		var today = new Date();
 
 		for (i in data['members']) {

@@ -23,7 +23,7 @@ function getAge(date) {
 	var diff = Date.now() - date.getTime();
 	var Age = new Date(diff);
 
-	return Math.abs(Age.getUTCFullYear() - 1970 + 1);
+	return Math.abs(Age.getUTCFullYear() - 1970);
 };
 
 // Confirmation de lancement du bot
@@ -34,13 +34,13 @@ client.once('ready', () => {
 
 // Envoi des messages d'anniversaire
 client.on("ready", () => {
-	cron.schedule("0 0 1 * * *", () => {
+	cron.schedule("* * 9 * * *", () => {
 		var today = new Date();
 
 		for (i in data['members']) {
 			if (data['members'][i]['day'] === today.getDate() && data['members'][i]['month'] === today.getMonth()) {
 
-				var date = new Date(data['members'][i]['year'], data['members'][i]['month'] + 1, data['members'][i]['day']);
+				var date = new Date(data['members'][i]['year'], data['members'][i]['month'], data['members'][i]['day']);
 				var age = getAge(date);
 
 				// Anniversiare du serveur
@@ -69,11 +69,16 @@ client.on('interactionCreate', async interaction => {
 	if (commandName === 'birthdays') {
 		var membersAge = [];
 		for (i in data['members']) {
-			var date = new Date(data['members'][i]['year'], data['members'][i]['month'] + 1, data['members'][i]['day']);
+			var date = new Date(data['members'][i]['year'], data['members'][i]['month'], data['members'][i]['day']);
 			var age = getAge(date);
-			membersAge.push(age - 1);
+			membersAge.push(age);
 		};
-		const average = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+
+		var avg = 0;
+		for (let i = 2; i < membersAge.length; i++) {
+			avg += membersAge[i];
+		}
+		avg = avg / (membersAge.length - 2);
 
 		const birthdays = new MessageEmbed()
 			.setColor("#DD2E44")
@@ -99,7 +104,7 @@ client.on('interactionCreate', async interaction => {
 				{ name: "Cindy", value: `13 décembre (${membersAge[14]} ans)`, inline: true },
 			)
 			.setTimestamp()
-			.setFooter({ text: `Moyenne d'âge du serveur : ${average(membersAge).toFixed(0)} ans`, iconURL: "https://cdn.discordapp.com/icons/682859558934151181/c5f161bd6f80a8397b80b095a27c9cee.webp" })
+			.setFooter({ text: `Moyenne d'âge du serveur : ${Math.round(avg)} ans`, iconURL: "https://cdn.discordapp.com/icons/682859558934151181/c5f161bd6f80a8397b80b095a27c9cee.webp" })
 
 		await interaction.reply({ embeds: [birthdays] });
 	}

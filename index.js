@@ -108,6 +108,33 @@ client.on('interactionCreate', async interaction => {
 
 		await interaction.reply({ embeds: [birthdays] });
 	}
+	
+	else if (commandName === "next-birthday") {
+		var today = new Date();
+
+		var date, remainingDays, member
+		for (var i in data['members']) {
+			
+			var memberDate = new Date(today.getFullYear(), data['members'][i]['month'], data['members'][i]['day']);
+			var difference = today.getTime() - memberDate.getTime();
+
+			if (difference < 0) {
+				memberDate.setUTCFullYear(data['members'][i]['year']);
+				date = memberDate;
+				remainingDays = Math.trunc(Math.abs(difference/(1000 * 3600 * 24)) + 1);
+				member = i;
+				break;
+			};
+		};
+
+		const nextBirthday = new MessageEmbed()
+			.setColor("#DD2E44")
+			.setTitle("Un anniversaire approche...")
+			.setDescription(`Dans ${remainingDays} jours, on arrosera les ${getAge(date) + 1} ans de ${data['members'][member]['name']} ! :tada:`)
+			.setTimestamp()
+			.setFooter({ text: "Le Bot des Joyeux Lurons", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/385a2dbe8bbfd559675a1bd43dbf4990.png?size=256"})
+		await interaction.reply({ embeds: [nextBirthday] });
+	}
 });
 
 // Connexion du bot

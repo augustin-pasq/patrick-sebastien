@@ -5,6 +5,7 @@ const { clientId, guildId, token } = require('./config.json');
 
 const commands = [
 	new SlashCommandBuilder().setName('birthdays').setDescription('Affiche les anniversaires de tous les membres'),
+	new SlashCommandBuilder().setName('next-birthday').setDescription('Affiche le prochain anniversaire à souhaiter')
 ]
 	.map(command => command.toJSON());
 

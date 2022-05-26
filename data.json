@@ -1,11 +1,11 @@
 {
     "members": [
         {
-            "name": "Terminatooz",
-            "id": "<@342971146339352586>",
-            "day": 23,
-            "month": 0,
-            "year": 2002
+            "name": "Le serveur",
+            "id": "Le serveur",
+            "day": 28,
+            "month": 1,
+            "year": 2020
         },
         {
             "name": "Banga",
@@ -13,6 +13,13 @@
             "day": 1,
             "month": 1,
             "year": 2017
+        },
+        {
+            "name": "Terminatooz",
+            "id": "<@342971146339352586>",
+            "day": 23,
+            "month": 0,
+            "year": 2002
         },
         {
             "name": "Chokorn",
@@ -34,13 +41,6 @@
             "day": 26,
             "month": 1,
             "year": 1996
-        },
-        {
-            "name": "Le serveur",
-            "id": "Le serveur",
-            "day": 28,
-            "month": 1,
-            "year": 2020
         },
         {
             "name": "Sainté",
@@ -78,14 +78,14 @@
             "year": 1998
         },
         {
-            "name": "Jérémy",
+            "name": "Jérémy (Phénix)",
             "id": "<@682230114821603398>",
             "day": 25,
             "month": 6,
             "year": 1998
         },
         {
-            "name": "Jérémy",
+            "name": "Jérémy (Rellikorn)",
             "id": "<@311173245787439106>",
             "day": 28,
             "month": 8,

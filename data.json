@@ -1,46 +1,11 @@
 {
     "members": [
         {
-            "name": "Le serveur",
-            "id": "Le serveur",
-            "day": 28,
-            "month": 1,
-            "year": 2020
-        },
-        {
-            "name": "Banga",
-            "id": "Banga",
-            "day": 1,
-            "month": 1,
-            "year": 2017
-        },
-        {
-            "name": "Terminatooz",
-            "id": "<@342971146339352586>",
-            "day": 23,
-            "month": 0,
-            "year": 2002
-        },
-        {
             "name": "Chokorn",
             "id": "<@386685074575196160>",
             "day": 9,
             "month": 1,
             "year": 1986
-        },
-        {
-            "name": "Gavin's",
-            "id": "<@503558756383326218>",
-            "day": 16,
-            "month": 1,
-            "year": 2003
-        },
-        {
-            "name": "Dam",
-            "id": "<@622809693349347337>",
-            "day": 26,
-            "month": 1,
-            "year": 1996
         },
         {
             "name": "Sainté",
@@ -64,20 +29,6 @@
             "year": 1982
         },
         {
-            "name": "Mandy",
-            "id": "<@494489289317679107>",
-            "day": 18,
-            "month": 5,
-            "year": 1995
-        },
-        {
-            "name": "Chloé",
-            "id": "<@246026861652606978>",
-            "day": 20,
-            "month": 6,
-            "year": 1998
-        },
-        {
             "name": "Jérémy (Phénix)",
             "id": "<@682230114821603398>",
             "day": 25,
@@ -90,20 +41,6 @@
             "day": 28,
             "month": 8,
             "year": 2001
-        },
-        {
-            "name": "Erwalia",
-            "id": "<@443887061519302656>",
-            "day": 9,
-            "month": 10,
-            "year": 1991
-        },
-        {
-            "name": "Cindy",
-            "id": "<@457921639393394692>",
-            "day": 13,
-            "month": 11,
-            "year": 1999
         }
     ]
 }

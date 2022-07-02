@@ -92,12 +92,12 @@ client.on('interactionCreate', async interaction => {
 			.setDescription("Voici tous les anniversaires à souhaiter :")
 			.setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Twemoji12_1f973.svg/1200px-Twemoji12_1f973.svg.png")
 			.addFields(
-				{ name: "Cho7Korn", value: `9 février (${membersAge[3]} ans)`, inline: true },
-				{ name: "Sainté", value: `3 avril (${membersAge[6]} ans)`, inline: true },
-				{ name: "Augustin", value: `29 avril (${membersAge[7]} ans)`, inline: true },
-				{ name: "Candice", value: `11 juin (${membersAge[8]} ans)`, inline: true },
-				{ name: "Jérémy (Phénix)", value: `25 juillet (${membersAge[11]} ans)`, inline: true },
-				{ name: "Jérémy (Rellikorn)", value: `28 septembre (${membersAge[12]} ans)`, inline: true },
+				{ name: "Cho7Korn", value: `9 février (${membersAge[0]} ans)`, inline: true },
+				{ name: "Sainté", value: `3 avril (${membersAge[1]} ans)`, inline: true },
+				{ name: "Augustin", value: `29 avril (${membersAge[2]} ans)`, inline: true },
+				{ name: "Candice", value: `11 juin (${membersAge[3]} ans)`, inline: true },
+				{ name: "Jérémy (Phénix)", value: `25 juillet (${membersAge[4]} ans)`, inline: true },
+				{ name: "Jérémy (Rellikorn)", value: `28 septembre (${membersAge[5]} ans)`, inline: true },
 			)
 			.setTimestamp()
 			.setFooter({ text: `Moyenne d'âge du serveur : ${Math.round(avg)} ans`, iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/385a2dbe8bbfd559675a1bd43dbf4990.png" })

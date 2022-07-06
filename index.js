@@ -1,13 +1,13 @@
 // Import des dépendances
-const { Client, Intents } = require('discord.js');
-const { MessageEmbed } = require('discord.js');
+const { Client, Intents } = require("discord.js");
+const { MessageEmbed } = require("discord.js");
 var cron = require("node-cron");
 
 // Récupération des données des fichiers
-const { token } = require('./config.json');
-const data = require('./data.json');
+const { token } = require("./config.json");
+const data = require("./data.json");
 
-// Création d'une instance de bot
+// Création d"une instance de bot
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
 // Parties du messages
@@ -26,7 +26,7 @@ function isPassed(date) {
 	return (diff > 0) ? true : false;
 }
 
-// Fonction de calcul de l'âge
+// Fonction de calcul de l"âge
 function getAge(date) {
 	var diff = Date.now() - date.getTime();
 	var age = new Date(diff);
@@ -43,24 +43,31 @@ function remainingDays(date) {
 	return Math.trunc(Math.abs(diff / (1000 * 3600 * 24)) + 1);
 };
 
+function generateEmbed(embed) {
+	for (i in data["members"]) {
+		var date = new Date(data["members"][i]["year"], data["members"][i]["month"], data["members"][i]["day"]);
+		embed.addField(data["members"][i]["name"], `${date.toLocaleDateString("fr-FR", { month: "long", day: "numeric" })} (${getAge(date)} ans)`, true);
+	};
+};
+
 // Confirmation de lancement du bot
-client.once('ready', () => {
+client.once("ready", () => {
 	client.user.setActivity("le calendrier", { type: "WATCHING" })
-	console.log('Logged in as Le Bot des Joyeux Lurons!');
+	console.log("Logged in as Le Bot des Joyeux Lurons!");
 });
 
-// Envoi des messages d'anniversaire
+// Envoi des messages d"anniversaire
 client.on("ready", () => {
 	cron.schedule("* * 0 * * *", () => {
 		var today = new Date();
 
-		for (i in data['members']) {
-			if (data['members'][i]['day'] === today.getDate() && data['members'][i]['month'] === today.getMonth()) {
+		for (i in data["members"]) {
+			if (data["members"][i]["day"] === today.getDate() && data["members"][i]["month"] === today.getMonth()) {
 
-				var date = new Date(data['members'][i]['year'], data['members'][i]['month'], data['members'][i]['day']);
+				var date = new Date(data["members"][i]["year"], data["members"][i]["month"], data["members"][i]["day"]);
 				var age = getAge(date);
 
-				var message = `${MESSAGE_HEAD} ${data['members'][i]['id']} ${MESSAGE_BODY_1} ${age} ${MESSAGE_BODY_2} ${data['members'][i]['name']} ${MESSAGE_TAIL}`;
+				var message = `${MESSAGE_HEAD} ${data["members"][i]["id"]} ${MESSAGE_BODY_1} ${age} ${MESSAGE_BODY_2} ${data["members"][i]["name"]} ${MESSAGE_TAIL}`;
 				client.channels.cache.get(CHANNEL).send(message);
 			};
 		};
@@ -68,16 +75,16 @@ client.on("ready", () => {
 });
 
 // Réponse aux commandes
-client.on('interactionCreate', async interaction => {
+client.on("interactionCreate", async interaction => {
 
 	if (!interaction.isCommand()) return;
 
 	const { commandName } = interaction;
 
-	if (commandName === 'birthdays') {
+	if (commandName === "birthdays") {
 		var membersAge = [];
-		for (i in data['members']) {
-			var date = new Date(data['members'][i]['year'], data['members'][i]['month'], data['members'][i]['day']);
+		for (i in data["members"]) {
+			var date = new Date(data["members"][i]["year"], data["members"][i]["month"], data["members"][i]["day"]);
 			var age = getAge(date);
 			membersAge.push(age);
 		};
@@ -88,28 +95,21 @@ client.on('interactionCreate', async interaction => {
 
 		const birthdays = new MessageEmbed()
 			.setColor("#DD2E44")
-			.setTitle("Hey ! Joyeux anniversaire !")
+			.setTitle("Joyeux anniversaire !")
 			.setDescription("Voici tous les anniversaires à souhaiter :")
 			.setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Twemoji12_1f973.svg/1200px-Twemoji12_1f973.svg.png")
-			.addFields(
-				{ name: "Cho7Korn", value: `9 février (${membersAge[0]} ans)`, inline: true },
-				{ name: "Sainté", value: `3 avril (${membersAge[1]} ans)`, inline: true },
-				{ name: "Augustin", value: `29 avril (${membersAge[2]} ans)`, inline: true },
-				{ name: "Candice", value: `11 juin (${membersAge[3]} ans)`, inline: true },
-				{ name: "Jérémy (Phénix)", value: `25 juillet (${membersAge[4]} ans)`, inline: true },
-				{ name: "Jérémy (Rellikorn)", value: `28 septembre (${membersAge[5]} ans)`, inline: true },
-			)
 			.setTimestamp()
-			.setFooter({ text: `Moyenne d'âge du serveur : ${Math.round(avg)} ans`, iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/385a2dbe8bbfd559675a1bd43dbf4990.png" })
+			.setFooter({ text: `Moyenne d"âge du serveur : ${Math.round(avg)} ans`, iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/385a2dbe8bbfd559675a1bd43dbf4990.png" })
 
+		generateEmbed(birthdays);
 		await interaction.reply({ embeds: [birthdays] });
 	}
 
 	else if (commandName === "next-birthday") {
 
 		var date, age, member;
-		for (var i = 2 ; i < data['members'].length ; i++) {
-			var memberDate = new Date(data['members'][i]['year'], data['members'][i]['month'], data['members'][i]['day']);
+		for (var i = 2 ; i < data["members"].length ; i++) {
+			var memberDate = new Date(data["members"][i]["year"], data["members"][i]["month"], data["members"][i]["day"]);
 
 			date = memberDate;
 			age = getAge(memberDate);
@@ -121,24 +121,24 @@ client.on('interactionCreate', async interaction => {
 		const nextBirthday = new MessageEmbed()
 			.setColor("#DD2E44")
 			.setTitle("Un anniversaire approche...")
-			.setDescription(`Dans ${remainingDays(date)} jours, on arrosera les ${age + 1} ans de ${data['members'][member]['name']} ! :tada:`)
+			.setDescription(`Dans ${remainingDays(date)} jours, on arrosera les ${age + 1} ans de ${data["members"][member]["name"]} ! :tada:`)
 			.setTimestamp()
 			.setFooter({ text: "Le Bot des Joyeux Lurons", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/385a2dbe8bbfd559675a1bd43dbf4990.png"})
 		await interaction.reply({ embeds: [nextBirthday] });
 	}
 
 	else if (commandName === "birthday-info") {
-		const givenMember = interaction.options.getUser('membre');
+		const givenMember = interaction.options.getUser("membre");
 
-		var member = data['members'].find(member => member["id"] == `<@${givenMember["id"]}>`);
+		var member = data["members"].find(member => member["id"] == `<@${givenMember["id"]}>`);
 
 		if (member != undefined) {
-			date = new Date(member['year'], member['month'], member['day']);
+			date = new Date(member["year"], member["month"], member["day"]);
 
 			const birthdayInfo = new MessageEmbed()
 				.setColor("#DD2E44")
 				.setTitle(`L'anniversaire de ${member["name"]}`)
-				.setDescription(`${member["name"]} fête son anniversaire le **${date.toLocaleDateString('fr-FR', { month: 'long', day: 'numeric' })}** et a donc actuellement **${getAge(date)} ans**. Son prochain anniversaire est dans **${remainingDays(date)} jours**. :birthday:`)
+				.setDescription(`${member["name"]} fête son anniversaire le **${date.toLocaleDateString("fr-FR", { month: "long", day: "numeric" })}** et a donc actuellement **${getAge(date)} ans**. Son prochain anniversaire est dans **${remainingDays(date)} jours**. :birthday:`)
 				.setTimestamp()
 				.setFooter({ text: "Le Bot des Joyeux Lurons", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/385a2dbe8bbfd559675a1bd43dbf4990.png" })
 			await interaction.reply({ embeds: [birthdayInfo] });
@@ -147,7 +147,7 @@ client.on('interactionCreate', async interaction => {
 		else {
 			const birthdayError = new MessageEmbed()
 				.setColor("#DD2E44")
-				.setTitle(`Désolé, je n'ai trouvé d'anniversaire...`)
+				.setTitle("Désolé, je n'ai trouvé d'anniversaire...")
 				.setTimestamp()
 				.setFooter({ text: "Le Bot des Joyeux Lurons", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/385a2dbe8bbfd559675a1bd43dbf4990.png" })
 			await interaction.reply({ embeds: [birthdayError] });

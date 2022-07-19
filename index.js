@@ -4,14 +4,14 @@ const { MessageEmbed } = require("discord.js");
 var cron = require("node-cron");
 
 // Récupération des données des fichiers
-const { token } = require("./config.json");
+const { token, channel } = require("./config.json");
 const data = require("./data.json");
 
 // Création d"une instance de bot
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
 // Parties du messages
-const CHANNEL = "986235216479780884";
+const CHANNEL = channel;
 const MESSAGE_HEAD = "Hey @everyone !"
 const MESSAGE_BODY_1 = "fête ses"
 const MESSAGE_BODY_2 = "ans aujourd'hui ! Souhaitez-lui un excellent anniversaire ! Bon anniversaire"

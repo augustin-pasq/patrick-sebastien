@@ -1,15 +1,22 @@
-# Le Bot des Joyeux Lurons
+# Patrick Sébastien
 
-**How to use the bot:**
+## How to use the bot
 
 Nothing to do, the day of your birthday, the bot wish you a happy birthday.
 
-**Special command:**
+## Special command
 
-`/birthdays` -> Show all birthdays of the server
+- Show all birthdays of the server
 
-`/next-birthday` -> Show the next birthday of the server
+    `/birthdays`
 
-`/birthday-info @someone` -> Show the birthday, the age and the number of days before the next birthday of @someone
+- Show the next birthday of the server
 
-Asguitun ©
+    `/next-birthday`
+
+- Show the birthday, the age and the number of days before the next birthday of @someone
+    `/birthday-info @someone`
+
+## Author
+
+© Augustin Pasquier

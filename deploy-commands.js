@@ -5,15 +5,15 @@ const { clientId, guildId, token } = require('./config.json');
 const commands = [
 	{
 		name: "birthdays",
-		description: "Display the birthdays for the whole server",
+		description: "Show the birthdays for the whole server",
 	},
 	{
 		name: "next-birthday",
-		description: "Display the next birthday",
+		description: "Show the next birthday",
 	},
 	{
 		name: "birthday-info",
-		description: "Display the birthday of the selected user",
+		description: "Show the birthday of the selected user",
 		options: [
 			{
 				name: "user",

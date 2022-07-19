@@ -1,9 +1,0 @@
-[
-    {
-        "name": "<the name of the user",
-        "id": "<the id of the user (with @ before)",
-        "day": "the day of the birthdate (number, not string)",
-        "month": "the month of the birthdate (number, not string)",
-        "year": "the year of the birthdate (number, not string)"
-    }
-]

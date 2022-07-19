@@ -45,7 +45,7 @@ Nothing to do, the day of your birthday, the bot wish you a happy birthday.
     ]
     ```
 
-    Add as JSON objects as there are memebers to wish the birthday
+    Add as many JSON objects as there are memebers to wish the birthday
 
 ## Author
 

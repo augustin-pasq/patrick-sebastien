@@ -15,6 +15,7 @@ Nothing to do, the day of your birthday, the bot wish you a happy birthday.
     `/next-birthday`
 
 - Show the birthday, the age and the number of days before the next birthday of @someone
+
     `/birthday-info @someone`
 
 ## Author

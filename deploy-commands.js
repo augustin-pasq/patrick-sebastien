@@ -1,4 +1,3 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { clientId, guildId, token } = require('./config.json');
@@ -6,27 +5,25 @@ const { clientId, guildId, token } = require('./config.json');
 const commands = [
 	{
 		name: "birthdays",
-		description: "Affiche les anniversaires de tous les membres",
+		description: "Display the birthdays for the whole server",
 	},
 	{
 		name: "next-birthday",
-		description: "Affiche le prochain anniversaire à souhaiter",
+		description: "Display the next birthday",
 	},
 	{
 		name: "birthday-info",
-		description: "Affiche l'anniversaire du membre sélectionné",
+		description: "Display the birthday of the selected user",
 		options: [
 			{
-				name: "membre",
-				description: "Le membre dont tu veux connaitre l'anniversaire",
+				name: "user",
+				description: "The user you want to know about the birthday",
 				type: 6, // user
 				required: true
 			}
 		]
 	}
 ]
-
-
 
 const rest = new REST({ version: '9' }).setToken(token);
 

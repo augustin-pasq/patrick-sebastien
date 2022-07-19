@@ -11,7 +11,7 @@ const data = require("./data.json");
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
 // Parties du messages
-const CHANNEL = "986235216479780884" //"682859559680868356";
+const CHANNEL = "986235216479780884";
 const MESSAGE_HEAD = "Hey @everyone !"
 const MESSAGE_BODY_1 = "fête ses"
 const MESSAGE_BODY_2 = "ans aujourd'hui ! Souhaitez-lui un excellent anniversaire ! Bon anniversaire"
@@ -44,16 +44,16 @@ function remainingDays(date) {
 };
 
 function generateEmbed(embed) {
-	for (i in data["members"]) {
-		var date = new Date(data["members"][i]["year"], data["members"][i]["month"], data["members"][i]["day"]);
-		embed.addField(data["members"][i]["name"], `${date.toLocaleDateString("fr-FR", { month: "long", day: "numeric" })} (${getAge(date)} ans)`, true);
+	for (i in data) {
+		var date = new Date(data[i]["year"], data[i]["month"], data[i]["day"]);
+		embed.addField(data[i]["name"], `${date.toLocaleDateString("fr-FR", { month: "long", day: "numeric" })} (${getAge(date)} ans)`, true);
 	};
 };
 
 // Confirmation de lancement du bot
 client.once("ready", () => {
 	client.user.setActivity("le calendrier", { type: "WATCHING" })
-	console.log("Logged in as Le Bot des Joyeux Lurons!");
+	console.log("Logged in as Patrick Sébastien!");
 });
 
 // Envoi des messages d"anniversaire
@@ -61,13 +61,13 @@ client.on("ready", () => {
 	cron.schedule("* * 0 * * *", () => {
 		var today = new Date();
 
-		for (i in data["members"]) {
-			if (data["members"][i]["day"] === today.getDate() && data["members"][i]["month"] === today.getMonth()) {
+		for (i in data) {
+			if (data[i]["day"] === today.getDate() && data[i]["month"] === today.getMonth()) {
 
-				var date = new Date(data["members"][i]["year"], data["members"][i]["month"], data["members"][i]["day"]);
+				var date = new Date(data[i]["year"], data[i]["month"], data[i]["day"]);
 				var age = getAge(date);
 
-				var message = `${MESSAGE_HEAD} ${data["members"][i]["id"]} ${MESSAGE_BODY_1} ${age} ${MESSAGE_BODY_2} ${data["members"][i]["name"]} ${MESSAGE_TAIL}`;
+				var message = `${MESSAGE_HEAD} ${data[i]["id"]} ${MESSAGE_BODY_1} ${age} ${MESSAGE_BODY_2} ${data[i]["name"]} ${MESSAGE_TAIL}`;
 				client.channels.cache.get(CHANNEL).send(message);
 			};
 		};
@@ -83,8 +83,8 @@ client.on("interactionCreate", async interaction => {
 
 	if (commandName === "birthdays") {
 		var membersAge = [];
-		for (i in data["members"]) {
-			var date = new Date(data["members"][i]["year"], data["members"][i]["month"], data["members"][i]["day"]);
+		for (i in data) {
+			var date = new Date(data[i]["year"], data[i]["month"], data[i]["day"]);
 			var age = getAge(date);
 			membersAge.push(age);
 		};
@@ -99,7 +99,7 @@ client.on("interactionCreate", async interaction => {
 			.setDescription("Voici tous les anniversaires à souhaiter :")
 			.setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Twemoji12_1f973.svg/1200px-Twemoji12_1f973.svg.png")
 			.setTimestamp()
-			.setFooter({ text: `Moyenne d"âge du serveur : ${Math.round(avg)} ans`, iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/385a2dbe8bbfd559675a1bd43dbf4990.png" })
+			.setFooter({ text: `Moyenne d"âge du serveur : ${Math.round(avg)} ans`, iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 
 		generateEmbed(birthdays);
 		await interaction.reply({ embeds: [birthdays] });
@@ -108,8 +108,8 @@ client.on("interactionCreate", async interaction => {
 	else if (commandName === "next-birthday") {
 
 		var date, age, member;
-		for (var i = 2 ; i < data["members"].length ; i++) {
-			var memberDate = new Date(data["members"][i]["year"], data["members"][i]["month"], data["members"][i]["day"]);
+		for (var i = 2 ; i < data.length ; i++) {
+			var memberDate = new Date(data[i]["year"], data[i]["month"], data[i]["day"]);
 
 			date = memberDate;
 			age = getAge(memberDate);
@@ -121,16 +121,16 @@ client.on("interactionCreate", async interaction => {
 		const nextBirthday = new MessageEmbed()
 			.setColor("#DD2E44")
 			.setTitle("Un anniversaire approche...")
-			.setDescription(`Dans ${remainingDays(date)} jours, on arrosera les ${age + 1} ans de ${data["members"][member]["name"]} ! :tada:`)
+			.setDescription(`Dans ${remainingDays(date)} jours, on arrosera les ${age + 1} ans de ${data[member]["name"]} ! :tada:`)
 			.setTimestamp()
-			.setFooter({ text: "Le Bot des Joyeux Lurons", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/385a2dbe8bbfd559675a1bd43dbf4990.png"})
+			.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png"})
 		await interaction.reply({ embeds: [nextBirthday] });
 	}
 
 	else if (commandName === "birthday-info") {
 		const givenMember = interaction.options.getUser("membre");
 
-		var member = data["members"].find(member => member["id"] == `<@${givenMember["id"]}>`);
+		var member = data.find(member => member["id"] == `<@${givenMember["id"]}>`);
 
 		if (member != undefined) {
 			date = new Date(member["year"], member["month"], member["day"]);
@@ -140,7 +140,7 @@ client.on("interactionCreate", async interaction => {
 				.setTitle(`L'anniversaire de ${member["name"]}`)
 				.setDescription(`${member["name"]} fête son anniversaire le **${date.toLocaleDateString("fr-FR", { month: "long", day: "numeric" })}** et a donc actuellement **${getAge(date)} ans**. Son prochain anniversaire est dans **${remainingDays(date)} jours**. :birthday:`)
 				.setTimestamp()
-				.setFooter({ text: "Le Bot des Joyeux Lurons", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/385a2dbe8bbfd559675a1bd43dbf4990.png" })
+				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 			await interaction.reply({ embeds: [birthdayInfo] });
 		}
 
@@ -149,7 +149,7 @@ client.on("interactionCreate", async interaction => {
 				.setColor("#DD2E44")
 				.setTitle("Désolé, je n'ai trouvé d'anniversaire...")
 				.setTimestamp()
-				.setFooter({ text: "Le Bot des Joyeux Lurons", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/385a2dbe8bbfd559675a1bd43dbf4990.png" })
+				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 			await interaction.reply({ embeds: [birthdayError] });
 		}
 	};

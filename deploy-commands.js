@@ -22,6 +22,14 @@ const commands = [
 				required: true
 			}
 		]
+	},
+	{
+		name: "join",
+		description: "Join a voice channel"
+	},
+	{
+		name: "leave",
+		description: "Leave the voice channel"
 	}
 ]
 

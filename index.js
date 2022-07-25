@@ -1,21 +1,27 @@
-// Import des dépendances
-const { Client, Intents } = require("discord.js");
-const { MessageEmbed } = require("discord.js");
+// Import des dépendances et des données
+const { Client, GatewayIntentBits , EmbedBuilder, AttachmentBuilder } = require("discord.js");
+const { createAudioPlayer, joinVoiceChannel, createAudioResource, StreamType } = require('@discordjs/voice');
+const { createReadStream } = require('node:fs');
+const { join } = require('node:path');
 var cron = require("node-cron");
 
-// Récupération des données des fichiers
-const { token, channel } = require("./config.json");
+const { token, guildId, channel, voiceChannel } = require("./config.json");
 const data = require("./data.json");
 
-// Création d"une instance de bot
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-
-// Parties du messages
+// Constantes et variables globales
 const CHANNEL = channel;
 const MESSAGE_HEAD = "Hey @everyone !"
 const MESSAGE_BODY_1 = "fête ses"
 const MESSAGE_BODY_2 = "ans aujourd'hui ! Souhaitez-lui un excellent anniversaire ! Bon anniversaire"
 const MESSAGE_TAIL = "! :partying_face:"
+var isInChannel = false;
+
+// Création d'une instance de bot
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
+
+// Création des modules du vocal
+var connection;
+var soundPlayer = createAudioPlayer();
 
 // Détermine si une date est passée
 function isPassed(date) {
@@ -26,7 +32,7 @@ function isPassed(date) {
 	return (diff > 0) ? true : false;
 }
 
-// Fonction de calcul de l"âge
+// Fonction de calcul de l'âge
 function getAge(date) {
 	var diff = Date.now() - date.getTime();
 	var age = new Date(diff);
@@ -43,10 +49,13 @@ function remainingDays(date) {
 	return Math.trunc(Math.abs(diff / (1000 * 3600 * 24)) + 1);
 };
 
+// Fonction de génération de l'embed
 function generateEmbed(embed) {
 	for (i in data) {
 		var date = new Date(data[i]["year"], data[i]["month"], data[i]["day"]);
-		embed.addField(data[i]["name"], `${date.toLocaleDateString("fr-FR", { month: "long", day: "numeric" })} (${getAge(date)} ans)`, true);
+		embed.addFields([
+			{ name: data[i]["name"], value: `${date.toLocaleDateString("fr-FR", { month: "long", day: "numeric" })} (${getAge(date)} ans)`, inline: true }
+		]);
 	};
 };
 
@@ -56,7 +65,7 @@ client.once("ready", () => {
 	console.log("Logged in as Patrick Sébastien!");
 });
 
-// Envoi des messages d"anniversaire
+// Envoi des messages d'anniversaire
 client.on("ready", () => {
 	cron.schedule("* * 0 * * *", () => {
 		var today = new Date();
@@ -74,10 +83,21 @@ client.on("ready", () => {
 	});
 });
 
+client.on('voiceStateUpdate', event => {
+	if (event.channelId == null) {
+		if (event.id != client.user.id) {
+			let member = data.find(member => member["id"] == `<@${event.id}>`);
+			soundPlayer.play(createAudioResource(createReadStream(join(__dirname, member["intro"]), { inputType: StreamType.OggOpus, inlineVolume: true })));
+		}
+	} else if (event.channelId == voiceChannel) {
+		soundPlayer.play(createAudioResource(createReadStream(join(__dirname, "./sounds/outro.ogg"), { inputType: StreamType.OggOpus, inlineVolume: true })));
+	}
+});
+
 // Réponse aux commandes
 client.on("interactionCreate", async interaction => {
 
-	if (!interaction.isCommand()) return;
+	if (!interaction.isChatInputCommand()) return;
 
 	const { commandName } = interaction;
 
@@ -90,25 +110,26 @@ client.on("interactionCreate", async interaction => {
 		};
 
 		var avg = 0;
-		for (i in membersAge) {avg += membersAge[i]};
+		for (i in membersAge) { avg += membersAge[i] };
 		avg = avg / (membersAge.length);
 
-		const birthdays = new MessageEmbed()
+		const attachment = new AttachmentBuilder("./images/embedThumbnail.webp", "embedThumbnail.webp");
+		const birthdays = new EmbedBuilder()
 			.setColor("#DD2E44")
 			.setTitle("Joyeux anniversaire !")
 			.setDescription("Voici tous les anniversaires à souhaiter :")
-			.setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Twemoji12_1f973.svg/1200px-Twemoji12_1f973.svg.png")
+			.setThumbnail("attachment://embedThumbnail.webp")
 			.setTimestamp()
 			.setFooter({ text: `Moyenne d"âge du serveur : ${Math.round(avg)} ans`, iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 
 		generateEmbed(birthdays);
-		await interaction.reply({ embeds: [birthdays] });
+		await interaction.reply({ embeds: [birthdays], files: [attachment] });
 	}
 
 	else if (commandName === "next-birthday") {
 
 		var date, age, member;
-		for (var i = 2 ; i < data.length ; i++) {
+		for (var i = 2; i < data.length; i++) {
 			var memberDate = new Date(data[i]["year"], data[i]["month"], data[i]["day"]);
 
 			date = memberDate;
@@ -118,24 +139,24 @@ client.on("interactionCreate", async interaction => {
 			if (!isPassed(memberDate)) break;
 		};
 
-		const nextBirthday = new MessageEmbed()
+		const nextBirthday = new EmbedBuilder()
 			.setColor("#DD2E44")
 			.setTitle("Un anniversaire approche...")
 			.setDescription(`Dans ${remainingDays(date)} jours, on arrosera les ${age + 1} ans de ${data[member]["name"]} ! :tada:`)
 			.setTimestamp()
-			.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png"})
+			.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 		await interaction.reply({ embeds: [nextBirthday] });
 	}
 
 	else if (commandName === "birthday-info") {
-		const givenMember = interaction.options.getUser("membre");
+		const givenMember = interaction.options.getUser("user");
 
-		var member = data.find(member => member["id"] == `<@${givenMember["id"]}>`);
+		let member = data.find(member => member["id"] == `<@${givenMember["id"]}>`);
 
 		if (member != undefined) {
 			date = new Date(member["year"], member["month"], member["day"]);
 
-			const birthdayInfo = new MessageEmbed()
+			const birthdayInfo = new EmbedBuilder()
 				.setColor("#DD2E44")
 				.setTitle(`L'anniversaire de ${member["name"]}`)
 				.setDescription(`${member["name"]} fête son anniversaire le **${date.toLocaleDateString("fr-FR", { month: "long", day: "numeric" })}** et a donc actuellement **${getAge(date)} ans**. Son prochain anniversaire est dans **${remainingDays(date)} jours**. :birthday:`)
@@ -145,14 +166,70 @@ client.on("interactionCreate", async interaction => {
 		}
 
 		else {
-			const birthdayError = new MessageEmbed()
+			const birthdayError = new EmbedBuilder()
 				.setColor("#DD2E44")
 				.setTitle("Désolé, je n'ai trouvé d'anniversaire...")
 				.setTimestamp()
 				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 			await interaction.reply({ embeds: [birthdayError] });
 		}
-	};
+	}
+
+	else if (commandName === "join") {
+		if (!isInChannel) {
+
+			connection = joinVoiceChannel({
+				channelId: voiceChannel,
+				guildId: guildId,
+				adapterCreator: interaction.guild.voiceAdapterCreator,
+			});
+
+			isInChannel = true;
+			
+			connection.subscribe(soundPlayer);
+
+			const channelJoined = new EmbedBuilder()
+				.setColor("#DD2E44")
+				.setTitle("Me voilà parmi vous !")
+				.setDescription("J'ai rejoint le salon vocal. :musical_note:")
+				.setTimestamp()
+				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
+			await interaction.reply({ embeds: [channelJoined] });
+
+		} else {
+			const channelJoined = new EmbedBuilder()
+				.setColor("#DD2E44")
+				.setTitle("Je suis déjà parmi vous...")
+				.setTimestamp()
+				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
+			await interaction.reply({ embeds: [channelJoined] });
+		}
+	}
+
+	else if (commandName === "leave") {
+		if (isInChannel) {
+
+			connection.destroy();
+
+			isInChannel = false;
+
+			const channelLeft = new EmbedBuilder()
+				.setColor("#DD2E44")
+				.setTitle("À la prochaine !")
+				.setDescription("J'ai quitté le salon vocal. :dash:")
+				.setTimestamp()
+				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
+			await interaction.reply({ embeds: [channelLeft] });
+
+		} else {
+			const botNotInChannel = new EmbedBuilder()
+				.setColor("#DD2E44")
+				.setTitle("Je ne suis pas dans le salon vocal...")
+				.setTimestamp()
+				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
+			await interaction.reply({ embeds: [botNotInChannel] });
+		}
+	}
 });
 
 // Connexion du bot

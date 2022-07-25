@@ -15,6 +15,7 @@ const MESSAGE_BODY_1 = "fête ses"
 const MESSAGE_BODY_2 = "ans aujourd'hui ! Souhaitez-lui un excellent anniversaire ! Bon anniversaire"
 const MESSAGE_TAIL = "! :partying_face:"
 var isInChannel = false;
+var canUseBot = [];
 
 // Création d'une instance de bot
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
@@ -88,9 +89,11 @@ client.on('voiceStateUpdate', event => {
 		if (event.id != client.user.id) {
 			let member = data.find(member => member["id"] == `<@${event.id}>`);
 			soundPlayer.play(createAudioResource(createReadStream(join(__dirname, member["intro"]), { inputType: StreamType.OggOpus, inlineVolume: true })));
+			canUseBot.push(event.id);
 		}
 	} else if (event.channelId == voiceChannel) {
 		soundPlayer.play(createAudioResource(createReadStream(join(__dirname, "./sounds/outro.ogg"), { inputType: StreamType.OggOpus, inlineVolume: true })));
+		canUseBot.splice(canUseBot.indexOf(event.id), 1);
 	}
 });
 
@@ -176,7 +179,7 @@ client.on("interactionCreate", async interaction => {
 	}
 
 	else if (commandName === "join") {
-		if (!isInChannel) {
+		if (!isInChannel && canUseBot.includes(interaction.user.id)) {
 
 			connection = joinVoiceChannel({
 				channelId: voiceChannel,
@@ -196,18 +199,27 @@ client.on("interactionCreate", async interaction => {
 				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 			await interaction.reply({ embeds: [channelJoined] });
 
-		} else {
+		} else if (isInChannel) {
 			const channelJoined = new EmbedBuilder()
 				.setColor("#DD2E44")
 				.setTitle("Je suis déjà parmi vous...")
 				.setTimestamp()
 				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 			await interaction.reply({ embeds: [channelJoined] });
+
+		} else if (!canUseBot.includes(interaction.user.id)) {
+			const notAllowed = new EmbedBuilder()
+				.setColor("#DD2E44")
+				.setTitle("Tu ne peux pas faire ça !")
+				.setDescription("Tu dois être dans le salon vocal...")
+				.setTimestamp()
+				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
+			await interaction.reply({ embeds: [notAllowed] });
 		}
 	}
 
 	else if (commandName === "leave") {
-		if (isInChannel) {
+		if (isInChannel && canUseBot.includes(interaction.user.id)) {
 
 			connection.destroy();
 
@@ -221,13 +233,22 @@ client.on("interactionCreate", async interaction => {
 				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 			await interaction.reply({ embeds: [channelLeft] });
 
-		} else {
+		} else if (!isInChannel) {
 			const botNotInChannel = new EmbedBuilder()
 				.setColor("#DD2E44")
 				.setTitle("Je ne suis pas dans le salon vocal...")
 				.setTimestamp()
 				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 			await interaction.reply({ embeds: [botNotInChannel] });
+
+		} else if (!canUseBot.includes(interaction.user.id)) {
+			const notAllowed = new EmbedBuilder()
+				.setColor("#DD2E44")
+				.setTitle("Tu ne peux pas faire ça !")
+				.setDescription("Tu dois être dans le salon vocal...")
+				.setTimestamp()
+				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
+			await interaction.reply({ embeds: [notAllowed] });
 		}
 	}
 });

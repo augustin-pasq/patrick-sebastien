@@ -1,10 +1,8 @@
 # Patrick Sébastien
 
-## How to use the bot
+## Birthday features
 
-Nothing to do, the day of your birthday, the bot wish you a happy birthday.
-
-## Special command
+- When today is the birthday of someone, the bot wish a happy birthday
 
 - Show all birthdays of the server
 
@@ -18,6 +16,20 @@ Nothing to do, the day of your birthday, the bot wish you a happy birthday.
 
     `/birthday-info @someone`
 
+## Voice features
+
+Users must be in the voice channel to use theses features
+
+- Join a voice channel
+
+    `/join`
+
+- When someone join a voice channel, a custom song is played (the bos must be in the voice channel before)
+
+- Leave a voice channel
+
+    `/leave`
+
 ## Run by yourself
 
 - Create a `config.json` file :
@@ -27,7 +39,8 @@ Nothing to do, the day of your birthday, the bot wish you a happy birthday.
         "clientId": "<your bot id>",
         "guildId": "<your server id>",
         "token": "<your bot token>",
-        "channel" : "<the channel to send the birthday message>"
+        "channel": "<the id of channel to send the birthday message>",
+        "voiceChannel": <the id of the voice channel where the bot must connect to>
     }
     ```
 
@@ -40,7 +53,8 @@ Nothing to do, the day of your birthday, the bot wish you a happy birthday.
             "id": "@<the id of the memberwith before>",
             "day": <the day of the birthdate (int, not string)>,
             "month": <the month of the birthdate (int, not string)>,
-            "year": <the year of the birthdate (int, not string)>
+            "year": <the year of the birthdate (int, not string)>,
+            "intro": <the path to the sound.ogg>
         }
     ]
     ```

@@ -39,8 +39,8 @@ Users must be in the voice channel to use theses features
         "clientId": "<your bot id>",
         "guildId": "<your server id>",
         "token": "<your bot token>",
-        "channel": "<the id of channel to send the birthday message>",
-        "voiceChannel": <the id of the voice channel where the bot must connect to>
+        "channelId": "<the id of channel to send the birthday message>",
+        "voiceChannelId": <the id of the voice channel where the bot must connect to>
     }
     ```
 

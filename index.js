@@ -187,6 +187,7 @@ client.on("interactionCreate", async interaction => {
 			connection.subscribe(soundPlayer);
 
 			connection.on(VoiceConnectionStatus.Disconnected, event => {
+				soundPlayer.stop();
 				connection.destroy();
 			});
 
@@ -223,6 +224,7 @@ client.on("interactionCreate", async interaction => {
 
 		if (inc && cub) {
 
+			soundPlayer.stop();
 			connection.destroy();
 
 			const channelLeft = new EmbedBuilder()

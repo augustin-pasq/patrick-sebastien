@@ -187,7 +187,6 @@ client.on("interactionCreate", async interaction => {
 			connection.subscribe(soundPlayer);
 
 			connection.on(VoiceConnectionStatus.Disconnected, event => {
-				soundPlayer.stop();
 				connection.destroy();
 			});
 
@@ -223,8 +222,6 @@ client.on("interactionCreate", async interaction => {
 		let cub = await canUseBot(interaction.user.id); 
 
 		if (inc && cub) {
-
-			soundPlayer.stop();
 			connection.destroy();
 
 			const channelLeft = new EmbedBuilder()
@@ -263,7 +260,7 @@ client.on('voiceStateUpdate', event => {
 			let member = data.find(member => member["id"] == `<@${event.id}>`);
 			soundPlayer.play(createAudioResource(createReadStream(join(__dirname, member["intro"]), { inputType: StreamType.OggOpus, inlineVolume: true })));
 		}
-	} else if (event.channelId == voiceChannelId) {
+	} else if (event.channelId == voiceChannelId && event.id != client.user.id) {
 		soundPlayer.play(createAudioResource(createReadStream(join(__dirname, "./sounds/outro.ogg"), { inputType: StreamType.OggOpus, inlineVolume: true })));
 	}
 });

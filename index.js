@@ -1,21 +1,18 @@
 // Import des dépendances et des données
 const { Client, GatewayIntentBits , EmbedBuilder, AttachmentBuilder } = require("discord.js");
-const { createAudioPlayer, joinVoiceChannel, createAudioResource, StreamType } = require('@discordjs/voice');
+const { createAudioPlayer, joinVoiceChannel, VoiceConnectionStatus, createAudioResource, StreamType } = require('@discordjs/voice');
 const { createReadStream } = require('node:fs');
 const { join } = require('node:path');
 var cron = require("node-cron");
-
-const { token, guildId, channel, voiceChannel } = require("./config.json");
+const { token, guildId, channelId, voiceChannelId } = require("./config.json");
 const data = require("./data.json");
 
 // Constantes et variables globales
-const CHANNEL = channel;
+const CHANNEL = channelId;
 const MESSAGE_HEAD = "Hey @everyone !"
 const MESSAGE_BODY_1 = "fête ses"
 const MESSAGE_BODY_2 = "ans aujourd'hui ! Souhaitez-lui un excellent anniversaire ! Bon anniversaire"
 const MESSAGE_TAIL = "! :partying_face:"
-var isInChannel = false;
-var canUseBot = [];
 
 // Création d'une instance de bot
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
@@ -60,6 +57,16 @@ function generateEmbed(embed) {
 	};
 };
 
+async function isInChannel() {
+	const voiceChannel = await client.channels.fetch(voiceChannelId);
+	return voiceChannel.members.has(client.application.id);
+};
+
+async function canUseBot(user) {
+	const voiceChannel = await client.channels.fetch(voiceChannelId);
+	return voiceChannel.members.has(user);
+};
+
 // Confirmation de lancement du bot
 client.once("ready", () => {
 	client.user.setActivity("le calendrier", { type: "WATCHING" })
@@ -82,19 +89,6 @@ client.on("ready", () => {
 			};
 		};
 	});
-});
-
-client.on('voiceStateUpdate', event => {
-	if (event.channelId == null) {
-		if (event.id != client.user.id) {
-			let member = data.find(member => member["id"] == `<@${event.id}>`);
-			soundPlayer.play(createAudioResource(createReadStream(join(__dirname, member["intro"]), { inputType: StreamType.OggOpus, inlineVolume: true })));
-			canUseBot.push(event.id);
-		}
-	} else if (event.channelId == voiceChannel) {
-		soundPlayer.play(createAudioResource(createReadStream(join(__dirname, "./sounds/outro.ogg"), { inputType: StreamType.OggOpus, inlineVolume: true })));
-		canUseBot.splice(canUseBot.indexOf(event.id), 1);
-	}
 });
 
 // Réponse aux commandes
@@ -179,17 +173,22 @@ client.on("interactionCreate", async interaction => {
 	}
 
 	else if (commandName === "join") {
-		if (!isInChannel && canUseBot.includes(interaction.user.id)) {
+		let inc = await isInChannel();
+		let cub = await canUseBot(interaction.user.id); 
+	
+		if (!inc && cub) {
 
 			connection = joinVoiceChannel({
-				channelId: voiceChannel,
+				channelId: voiceChannelId,
 				guildId: guildId,
 				adapterCreator: interaction.guild.voiceAdapterCreator,
 			});
-
-			isInChannel = true;
 			
 			connection.subscribe(soundPlayer);
+
+			connection.on(VoiceConnectionStatus.Disconnected, event => {
+				connection.destroy();
+			});
 
 			const channelJoined = new EmbedBuilder()
 				.setColor("#DD2E44")
@@ -199,7 +198,7 @@ client.on("interactionCreate", async interaction => {
 				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 			await interaction.reply({ embeds: [channelJoined] });
 
-		} else if (isInChannel) {
+		} else if (inc) {
 			const channelJoined = new EmbedBuilder()
 				.setColor("#DD2E44")
 				.setTitle("Je suis déjà parmi vous...")
@@ -207,7 +206,7 @@ client.on("interactionCreate", async interaction => {
 				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 			await interaction.reply({ embeds: [channelJoined] });
 
-		} else if (!canUseBot.includes(interaction.user.id)) {
+		} else if (!cub) {
 			const notAllowed = new EmbedBuilder()
 				.setColor("#DD2E44")
 				.setTitle("Tu ne peux pas faire ça !")
@@ -219,11 +218,12 @@ client.on("interactionCreate", async interaction => {
 	}
 
 	else if (commandName === "leave") {
-		if (isInChannel && canUseBot.includes(interaction.user.id)) {
+		let inc = await isInChannel();
+		let cub = await canUseBot(interaction.user.id); 
+
+		if (inc && cub) {
 
 			connection.destroy();
-
-			isInChannel = false;
 
 			const channelLeft = new EmbedBuilder()
 				.setColor("#DD2E44")
@@ -233,7 +233,7 @@ client.on("interactionCreate", async interaction => {
 				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 			await interaction.reply({ embeds: [channelLeft] });
 
-		} else if (!isInChannel) {
+		} else if (!inc) {
 			const botNotInChannel = new EmbedBuilder()
 				.setColor("#DD2E44")
 				.setTitle("Je ne suis pas dans le salon vocal...")
@@ -241,7 +241,7 @@ client.on("interactionCreate", async interaction => {
 				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 			await interaction.reply({ embeds: [botNotInChannel] });
 
-		} else if (!canUseBot.includes(interaction.user.id)) {
+		} else if (!cub) {
 			const notAllowed = new EmbedBuilder()
 				.setColor("#DD2E44")
 				.setTitle("Tu ne peux pas faire ça !")
@@ -250,6 +250,19 @@ client.on("interactionCreate", async interaction => {
 				.setFooter({ text: "Patrick Sébastien", iconURL: "https://cdn.discordapp.com/app-icons/775422653636149278/23f4ec953794de102fa556d1ef625582.png" })
 			await interaction.reply({ embeds: [notAllowed] });
 		}
+	}
+});
+
+// Joue un son quand quelqu'un rejoint le salon vocal
+client.on('voiceStateUpdate', event => {
+
+	if (event.channelId == null) {
+		if (event.id != client.user.id) {
+			let member = data.find(member => member["id"] == `<@${event.id}>`);
+			soundPlayer.play(createAudioResource(createReadStream(join(__dirname, member["intro"]), { inputType: StreamType.OggOpus, inlineVolume: true })));
+		}
+	} else if (event.channelId == voiceChannelId) {
+		soundPlayer.play(createAudioResource(createReadStream(join(__dirname, "./sounds/outro.ogg"), { inputType: StreamType.OggOpus, inlineVolume: true })));
 	}
 });
 

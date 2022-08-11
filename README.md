@@ -2,7 +2,7 @@
 
 ## Birthday features
 
-- When today is the birthday of someone, the bot wish a happy birthday
+- When today is the birthday of someone, the bot wishes a happy birthday
 
 - Show all birthdays of the server
 
@@ -24,7 +24,7 @@ Users must be in the voice channel to use theses features
 
     `/join`
 
-- When someone join a voice channel, a custom song is played (the bos must be in the voice channel before)
+- When someone joins a voice channel, a custom song is played (the bos must be in the voice channel before)
 
 - Leave a voice channel
 
@@ -59,7 +59,7 @@ Users must be in the voice channel to use theses features
     ]
     ```
 
-    Add as many JSON objects as there are memebers to wish the birthday
+    Add as many JSON objects as there are members to wish the birthday
 
 ## Author
 
